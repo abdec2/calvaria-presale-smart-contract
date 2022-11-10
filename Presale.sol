@@ -17,10 +17,13 @@ contract Presale is Context, ReentrancyGuard {
     IERC20 private _token;
 
     // Address where funds are collected
-    address payable private _wallet;
+    address payable private _wallet; // receives 90% of total payment
+    address payable private _wallet2; // receives 10% of total payment
 
+    // token distribution wallet address
     address private _tokenWallet;
 
+    // payment accept in usdt
     IERC20 private _usdt;
 
 
@@ -31,15 +34,17 @@ contract Presale is Context, ReentrancyGuard {
 
     event TokensPurchased(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-    constructor (uint256 __rate, address payable __wallet, IERC20 __token, address __tokenWallet, address usdt) {
+    constructor (uint256 __rate, address payable _wallet90, address payable _wallet10, IERC20 __token, address __tokenWallet, address usdt) {
         require(__rate > 0, "Crowdsale: rate is 0");
-        require(__wallet != address(0), "Crowdsale: wallet is the zero address");
+        require(_wallet90 != address(0), "Crowdsale: wallet90 is the zero address");
+        require(_wallet10 != address(0), "Crowdsale: wallet10 is the zero address");
         require(address(__token) != address(0), "Crowdsale: token is the zero address");
         require(__tokenWallet != address(0), "AllowanceCrowdsale: token wallet is the zero address");
         require(usdt != address(0), "PRESALE: USDT address is the zero address");
 
         _rate = __rate; // 40000000000000 
-        _wallet = __wallet;
+        _wallet = _wallet90;
+        _wallet2 = _wallet10;
         _token = __token;
         _tokenWallet = __tokenWallet;
         _usdt = IERC20(usdt);
@@ -57,6 +62,10 @@ contract Presale is Context, ReentrancyGuard {
         return _wallet;
     }
 
+    function wallet10() public view returns (address payable) {
+        return _wallet2;
+    }
+
     function tokenWallet() public view returns (address) {
         return _tokenWallet;
     }
@@ -72,7 +81,11 @@ contract Presale is Context, ReentrancyGuard {
     function buyTokens(address beneficiary, uint256 amount) public nonReentrant {
         uint256 weiAmount = amount;
         _preValidatePurchase(beneficiary, weiAmount);
-        require(_usdt.transferFrom(beneficiary, _wallet, weiAmount), "PRESALE: USDT transfer fail.");
+        uint256 amount90 = weiAmount.mul(90).div(100);
+        uint256 amount10 = weiAmount.mul(10).div(100);
+        require(_usdt.transferFrom(beneficiary, _wallet, amount90), "PRESALE: USDT transfer to wallet90 fail.");
+        require(_usdt.transferFrom(beneficiary, _wallet2, amount10), "PRESALE: USDT transfer to wallet10 fail.");
+
 
         // calculate token amount to be created
         uint256 tokens = _getTokenAmount(weiAmount);
