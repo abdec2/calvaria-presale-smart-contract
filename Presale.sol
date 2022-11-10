@@ -78,14 +78,16 @@ contract Presale is Context, ReentrancyGuard {
         return _weiRaised;
     }
 
+
     function buyTokens(address beneficiary, uint256 amount) public nonReentrant {
         uint256 weiAmount = amount;
         _preValidatePurchase(beneficiary, weiAmount);
+
         uint256 amount90 = weiAmount.mul(90).div(100);
         uint256 amount10 = weiAmount.mul(10).div(100);
-        require(_usdt.transferFrom(beneficiary, _wallet, amount90), "PRESALE: USDT transfer to wallet90 fail.");
-        require(_usdt.transferFrom(beneficiary, _wallet2, amount10), "PRESALE: USDT transfer to wallet10 fail.");
 
+        _usdt.safeTransferFrom(beneficiary, _wallet, amount90);
+        _usdt.safeTransferFrom(beneficiary, _wallet2, amount10);
 
         // calculate token amount to be created
         uint256 tokens = _getTokenAmount(weiAmount);
