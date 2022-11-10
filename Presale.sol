@@ -1,4 +1,4 @@
-// SPDX_License_Identifier: MIT
+// SPDX-License-Identifier: MIT
 
 pragma solidity ^0.8.0;
 
@@ -31,17 +31,17 @@ contract Presale is Context, ReentrancyGuard {
 
     event TokensPurchased(address indexed purchaser, address indexed beneficiary, uint256 value, uint256 amount);
 
-    constructor (uint256 rate, address payable wallet, IERC20 token, address tokenWallet, address usdt) {
-        require(rate > 0, "Crowdsale: rate is 0");
-        require(wallet != address(0), "Crowdsale: wallet is the zero address");
-        require(address(token) != address(0), "Crowdsale: token is the zero address");
-        require(tokenWallet != address(0), "AllowanceCrowdsale: token wallet is the zero address");
+    constructor (uint256 __rate, address payable __wallet, IERC20 __token, address __tokenWallet, address usdt) {
+        require(__rate > 0, "Crowdsale: rate is 0");
+        require(__wallet != address(0), "Crowdsale: wallet is the zero address");
+        require(address(__token) != address(0), "Crowdsale: token is the zero address");
+        require(__tokenWallet != address(0), "AllowanceCrowdsale: token wallet is the zero address");
         require(usdt != address(0), "PRESALE: USDT address is the zero address");
 
-        _rate = rate;
-        _wallet = wallet;
-        _token = token;
-        _tokenWallet = tokenWallet;
+        _rate = __rate; // 40000000000000 
+        _wallet = __wallet;
+        _token = __token;
+        _tokenWallet = __tokenWallet;
         _usdt = IERC20(usdt);
     }
 
